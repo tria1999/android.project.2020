@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LoginButton loginButton;
     private Button caButton;
+    private Button goToHashtagSearchButton;
 
     private static CallbackManager callbackManager;
     private static String EMAIL = "email";
@@ -47,6 +48,14 @@ public class MainActivity extends AppCompatActivity {
                 goToShare();
             }
         });
+        goToHashtagSearchButton = findViewById(R.id.goToHashtagSearchButton);
+        goToHashtagSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToSearch();
+            }
+        });
+
         loginButton.setPermissions(Arrays.asList(EMAIL));
 
         callbackManager = CallbackManager.Factory.create();
@@ -94,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else
                 {loadUserProfile(currentAccessToken);
-                goToShare();
+
                 }
             }
         };
@@ -126,6 +135,11 @@ public class MainActivity extends AppCompatActivity {
     }
     private void goToShare() {
         Intent i = new Intent(this, ShareActivity.class);
+        startActivity(i);
+
+    }
+    private void goToSearch() {
+        Intent i = new Intent(this, HashtagSearchActivity.class);
         startActivity(i);
 
     }

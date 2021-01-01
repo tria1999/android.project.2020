@@ -27,6 +27,13 @@
             android:layout_height="wrap_content" android:id="@+id/changeActivity"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/login_button" android:layout_marginTop="108dp"
-            app:layout_constraintHorizontal_bias="0.531"/>
+            app:layout_constraintHorizontal_bias="0.5"/>
+    <Button
+            android:text="Hashtag Search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/goToHashtagSearchButton"
+            android:layout_marginTop="40dp"
+            app:layout_constraintTop_toBottomOf="@+id/changeActivity" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
