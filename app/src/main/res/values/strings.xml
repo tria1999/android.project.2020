@@ -2,4 +2,9 @@
     <string name="app_name">dai18085_Triantafyllos_Tsiakiris_Project_2020-21</string>
     <string name="facebook_app_id">1157658524637208</string>
     <string name="fb_login_protocol_scheme">fb1157658524637208</string>
+    <string name="com.twitter.sdk.android.CONSUMER_KEY">DzPbJ7CewrjSkJF1kZRs1SIer</string>
+    <string name="com.twitter.sdk.android.CONSUMER_SECRET">lhV9PF8ePCPeccam3EiZRWJUN9NAU08XRj7iJX0VesT3uFPlfk</string>
+    <string name="com.twitter.sdk.android.ACCESS_TOKEN">2391056089-kB9bTz5m3ipv7OHIsot4X6o1kOSxr9eUIsZYWwo</string>
+    <string name="com.twitter.sdk.android.ACCESS_TOKEN_SECRET">qmOhBETUsrTGykRChLLmywklzc1qYECiJxm5DT3ohbtfU</string>
+
 </resources>

@@ -21,19 +21,25 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/title"
             android:layout_marginTop="88dp"/>
-    <Button
-            android:text="changeActivity"
+    <com.twitter.sdk.android.core.identity.TwitterLoginButton
+            android:id="@+id/twitter_login_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/changeActivity"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/login_button" android:layout_marginTop="28dp"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <Button
+            android:text="Create a Post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/toShareActivity"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/login_button" android:layout_marginTop="108dp"
-            app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintHorizontal_bias="0.5"
+            android:layout_marginTop="68dp" app:layout_constraintTop_toBottomOf="@+id/twitter_login_button"/>
     <Button
             android:text="Hashtag Search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/goToHashtagSearchButton"
             android:layout_marginTop="40dp"
-            app:layout_constraintTop_toBottomOf="@+id/changeActivity" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toShareActivity" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

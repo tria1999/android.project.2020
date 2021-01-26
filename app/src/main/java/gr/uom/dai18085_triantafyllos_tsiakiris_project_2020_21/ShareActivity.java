@@ -18,6 +18,10 @@ import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.model.SharePhoto;
 import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.widget.ShareDialog;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.tweetcomposer.ComposerActivity;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
 public class ShareActivity extends AppCompatActivity {
 
@@ -64,6 +68,14 @@ public class ShareActivity extends AppCompatActivity {
                 }
 
         });
+
+        final TwitterSession twitterSession = TwitterCore.getInstance().getSessionManager()
+                .getActiveSession();
+
+
+
+
+        //post on requested social media
         continueButton = findViewById(R.id.continueButton);
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,9 +130,30 @@ public class ShareActivity extends AppCompatActivity {
                     }
 
                 }
+                if(tweetCheckBox.isChecked()) {
+                    if (imageSelected) {
+                        if (twitterSession != null)
+                        {
+                            final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
+                                    .session(twitterSession)
+                                    .image(imageUri)
+                                    .text(quoteEditText.getText().toString())
+                                    .hashtags("UOMDAIAndroidProject")
+                                    .createIntent();
+                            startActivity(intent);
+                        }
+                    }
+                    else
+                    {
+                        final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
+                                .session(twitterSession)
+                                .text(quoteEditText.getText().toString())
+                                .hashtags("UOMDAIAndroidProject")
+                                .createIntent();
+                        startActivity(intent);
+                    }
 
-
-
+                }
             }
 
         });

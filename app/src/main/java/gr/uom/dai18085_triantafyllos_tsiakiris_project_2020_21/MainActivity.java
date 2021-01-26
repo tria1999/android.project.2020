@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +11,8 @@ import com.facebook.*;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import com.twitter.sdk.android.core.*;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,11 +20,12 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LoginButton loginButton;
+    private LoginButton facebookLoginButton;
+    private TwitterLoginButton twitterLoginButton;
     private Button caButton;
     private Button goToHashtagSearchButton;
-
-    private static CallbackManager callbackManager;
+    private TwitterSession twitterSession;
+    private static CallbackManager facebookCallbackManager;
     private static String EMAIL = "email";
     private static AccessToken accessToken;
 
@@ -36,12 +38,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Twitter.initialize(this);
         setContentView(R.layout.activity_main);
 
+        facebookLoginButton = findViewById(R.id.login_button);
+        twitterLoginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
 
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-
-        caButton = findViewById(R.id.changeActivity);
+        caButton = findViewById(R.id.toShareActivity);
         caButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,14 +59,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loginButton.setPermissions(Arrays.asList(EMAIL));
+        facebookLoginButton.setPermissions(Arrays.asList(EMAIL));
 
-        callbackManager = CallbackManager.Factory.create();
-        loginButton = (LoginButton) findViewById(R.id.login_button);
+        facebookCallbackManager = CallbackManager.Factory.create();
+        facebookLoginButton = (LoginButton) findViewById(R.id.login_button);
         // If you are using in a fragment, call loginButton.setFragment(this);
 
         // Callback registration
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        facebookLoginButton.registerCallback(facebookCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.i(TAG, "Success, token :"+ loginResult.toString());
@@ -81,31 +84,54 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        twitterLoginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                Log.v("twlogin", "starting log in");
+                TwitterSession session = TwitterCore.getInstance().getSessionManager().getActiveSession();
+                TwitterAuthToken authToken = session.getAuthToken();
+                String token = authToken.token;
+                String secret = authToken.secret;
+
+                twitterSession = session;
+
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Toast.makeText(MainActivity.this,"Login failed!", Toast.LENGTH_LONG);
+            }
+        });
+
         accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
 
-
     }
 
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+    @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            super.onActivityResult(requestCode, resultCode, data);
+            facebookCallbackManager.onActivityResult(requestCode, resultCode, data);
+            twitterLoginButton.onActivityResult(requestCode, resultCode, data);
         }
+
+
         AccessTokenTracker tokenTracker = new AccessTokenTracker() {
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                if(currentAccessToken == null)
-                {
-
-                    Toast.makeText(MainActivity.this,"logged out",Toast.LENGTH_LONG).show();
-                }
-                else
-                {loadUserProfile(currentAccessToken);
-
-                }
+        @Override
+        protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+            if(currentAccessToken == null)
+            {
+                Toast.makeText(MainActivity.this,"Logged out of Facebook",Toast.LENGTH_LONG).show();
             }
+            else
+            {
+                loadUserProfile(currentAccessToken);
+            }
+
+        }
         };
 
     private void loadUserProfile(AccessToken newAccessToken)

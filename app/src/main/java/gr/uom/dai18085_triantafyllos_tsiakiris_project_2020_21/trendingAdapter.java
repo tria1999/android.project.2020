@@ -12,16 +12,19 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class trendingAdapter extends RecyclerView.Adapter<trendingAdapter.trendingViewHolder>{
     Context context;
-    String trendingHashtags[];
+    List<String> trendingHashtags;
     String selectedHashtag;
 
-    public trendingAdapter(Context context, String trendingHashtags[]){
+    public trendingAdapter(Context context, List<String> trendingHashtags){
 
         this.context = context;
         this.trendingHashtags = trendingHashtags;
-        this.selectedHashtag = trendingHashtags[0];
+        this.selectedHashtag = trendingHashtags.get(0);
     }
 
     @NonNull
@@ -35,12 +38,12 @@ public class trendingAdapter extends RecyclerView.Adapter<trendingAdapter.trendi
 
     @Override
     public void onBindViewHolder(@NonNull trendingViewHolder holder, int position) {
-        holder.trendingView.setText(trendingHashtags[position]);
+        holder.trendingView.setText(trendingHashtags.get(position));
         final int pos = position;
         holder.innerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedHashtag = trendingHashtags[pos];
+                selectedHashtag = trendingHashtags.get(pos);
                 //Intent i = new Intent(context,HashtagSearchActivity.class);
                 //i.putExtra("selectedHashtag", selectedHashtag);
             }
@@ -50,7 +53,7 @@ public class trendingAdapter extends RecyclerView.Adapter<trendingAdapter.trendi
 
     @Override
     public int getItemCount() {
-        return trendingHashtags.length;
+        return trendingHashtags.size();
     }
 
     public class trendingViewHolder extends RecyclerView.ViewHolder{
