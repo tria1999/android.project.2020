@@ -1,7 +1,6 @@
 package gr.uom.dai18085_triantafyllos_tsiakiris_project_2020_21;
 
 import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,20 +9,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import twitter4j.*;
-import twitter4j.api.TrendsResources;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class HashtagSearchActivity extends AppCompatActivity {
 
@@ -33,15 +23,21 @@ public class HashtagSearchActivity extends AppCompatActivity {
     private RecyclerView trendingRecyclerView;
     public String selectedHashtag;
     private List<String> trending;
-    private String postProfileName[];
-    private String postText[];
-    private Uri authUri;
     private trendingAdapter trendingAdapter;
     private Trends trends;
+    private TrendsPasser trendsPasser;
+    private SearchForPosts searcher;
+    private Object trendsLock,searchLock;
+    private postSearchAdapter postSearchAdapter;
+    private List<RecyclerPost> recyclerPosts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hashtag_search);
+
+        trendsLock = new Object();
+        searchLock= new Object();
 
         setButton = findViewById(R.id.setButton);
         searchButton = findViewById(R.id.searchButton);
@@ -73,84 +69,29 @@ public class HashtagSearchActivity extends AppCompatActivity {
                 .appendQueryParameter("oauth_version", afaf)
                 .build()*/
         //test
-        postProfileName = new String[]{"john doe", "jane doe", "mary poe", "mario poe"};
-        postText = new String[]{"hi, im john","hi, im jane","hi, im mary","hi, im mario"};
+
+        //Get trends from Twitter
         trending = new ArrayList<>();
         trending.add("#covid19");
         trending.add("#whoCaresAboutAmericanPolitics");
         trending.add("#someRandomHashtag");
 
-        trendingAdapter = new trendingAdapter(this,trending);
-        trendingRecyclerView.setAdapter(trendingAdapter);
-        trendingRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        trendsPasser = new TrendsPasser(twitter,trends,trending, trendsLock);
+        Thread trendsThread = new Thread(trendsPasser);
+        trendsThread.start();
 
-
-            //List<Status> status = twitter.getHomeTimeline();
-
-        //test
-        //Get trends from Twitter
-/*
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.twitter.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        //TrendsResources trendingHashtags = retrofit.create(TrendsResources.class);
-       */
-
-        try{
-            // The factory instance is re-useable and thread safe.
-            //twitter = TwitterFactory.getSingleton();
-            Query query = new Query("#google");
-            query.setCount(50);
-            QueryResult result = twitter.search(query);
-
-        }catch(Exception e){
-            System.out.println(e);
-        }
-
-       /* try {
-            trends = twitter.getPlaceTrends(1);
-        } catch (TwitterException e) {
-            e.printStackTrace();
-        }
-*/
-
-
-
-/*
-        Call<List<Trend>> call = getTrendingHashtagsInterface.getTrends();
-
-        call.enqueue(new Callback<List<Trend>>() {
-            @Override
-            public void onResponse(Call<List<Trend>> call, Response<List<Trend>> response) {
-                if(!response.isSuccessful()){
-                    Toast.makeText(HashtagSearchActivity.this,"Code: "+response.code(),Toast.LENGTH_LONG);
-                    Log.e("call","Error code " + response.code());
-                    return;
-                }
-
-                trending = response.body();
-                trendingAdapter = new trendingAdapter(HashtagSearchActivity.this,trending);
-                trendingRecyclerView.setAdapter(trendingAdapter);
-
-            }
-
-            @Override
-            public void onFailure(Call<List<Trend>> call, Throwable t) {
-                Toast.makeText(HashtagSearchActivity.this,"Failed to load trends!",Toast.LENGTH_LONG);
-                Log.e("call","Failed to load trends!");
-
-            }
-        });
-        */
         //Put trends on the RecyclerView
-        postSearchAdapter postSearchAdapter = new postSearchAdapter(this,postProfileName,postText);
-        resultRecyclerView.setAdapter(postSearchAdapter);
-        resultRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-
-
-
+        synchronized(trendsLock) {
+            if (!trendsPasser.done) {
+                try {
+                    trendsLock.wait();
+                    trendingAdapter = new trendingAdapter(HashtagSearchActivity.this,trending);
+                    trendingRecyclerView.setAdapter(trendingAdapter);
+                    trendingRecyclerView.setLayoutManager(new LinearLayoutManager(HashtagSearchActivity.this));
+                } catch (InterruptedException e) {
+                }
+            }
+        }
 
         hashtagSearchText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,19 +115,53 @@ public class HashtagSearchActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selectedHashtag = hashtagSearchText.getText().toString();
                 Toast.makeText(HashtagSearchActivity.this, "Searching for "+selectedHashtag,Toast.LENGTH_LONG).show();
-                try {
-                    Query query = new Query(hashtagSearchText.getText().toString());
-                    query.setCount(10);
-                    QueryResult result = twitter.search(query);
+                searcher = new SearchForPosts(twitter,selectedHashtag, searchLock);
+                Thread searchThread = new Thread(searcher);
+                searchThread.start();
+                synchronized(searchLock) {
+                    if (!searcher.done) {
+                        try {
+                            searchLock.wait();
+                            QueryResult searchResult = searcher.getResult();
+                            recyclerPosts = new ArrayList<>();
+                            for(Status s: searchResult.getTweets())
+                                recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getMediaEntities()));
 
-                } catch (TwitterException e) {
-                    e.printStackTrace();
+                            postSearchAdapter = new postSearchAdapter(HashtagSearchActivity.this,recyclerPosts);
+                            resultRecyclerView.setAdapter(postSearchAdapter);
+                            resultRecyclerView.setLayoutManager(new LinearLayoutManager(HashtagSearchActivity.this));
+                        } catch (InterruptedException e) {
+                        }
+                    }
                 }
 
             }
         });
 
     }
+    /*public static HttpHeaders createOAuthHeader(String httpMethod, String url, String text) {
+
+        String epochO = getCurrentEpochTimeAsString();
+        String nonceO = generateNonce();
+
+        //Map<String, String> map = createMap(oauth_consumer_keyA, oauth_tokenA, nonceA, epochA);
+        Map<String, String> map = createMap(oauth_consumer_keyA, oauth_tokenA, nonceO, epochO);
+
+        String parameterString = createParameterString(map);
+
+        String baseString = createOAuthBaseString(httpMethod, urlA, parameterString);
+
+        String signingKey = createOAuthSigningKey(oauth_consumer_secretA, oauth_token_secretA);
+
+        String signatureBase64 = createSignatureBase64(baseString, signingKey);
+
+        String headerString = createHeaderString(map, signatureBase64);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("authorization", headerString);
+
+        return httpHeaders;
+*/
 
 }
 

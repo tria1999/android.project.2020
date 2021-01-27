@@ -1,24 +1,28 @@
 package gr.uom.dai18085_triantafyllos_tsiakiris_project_2020_21;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
 
 public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.postSearchViewHolder> {
 
     Context context;
-    String profileName[];
-    String postText[];
-    public postSearchAdapter(Context context, String profileName[], String postText[]){
+    List<RecyclerPost> recyclerPosts;
+    public postSearchAdapter(Context context, List<RecyclerPost> recyclerPosts){
 
         this.context = context;
-        this.profileName = profileName;
-        this.postText = postText;
+        this.recyclerPosts = recyclerPosts;
+
     }
 
     @NonNull
@@ -32,29 +36,49 @@ public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.po
 
     @Override
     public void onBindViewHolder(@NonNull postSearchViewHolder holder, int position) {
-        holder.profileNameView.setText(profileName[position]);
-        holder.postTextView.setText(postText[position]);
-        //holder.profileImageView.setImageResource();
-        //holder.smnImageView.setImageResource();
+        holder.profileNameView.setText(recyclerPosts.get(position).getUsername());
+        holder.postTextView.setText(recyclerPosts.get(position).getText());
+        if(!recyclerPosts.get(position).getImageUrls().isEmpty())
+        {
+            Uri uri = Uri.parse(recyclerPosts.get(position).getImageUrls().get(0));
+            holder.profileImageView.setImageURI(uri);
+
+        }
+        switch (recyclerPosts.get(position).getSmn()){
+            case "twitter": holder.smnImageView.setImageResource(R.drawable.twitter_logo);
+                break;
+        }
+
+        holder.detailsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(context, PostDetailsActivity.class);
+                intent.putExtra("username",recyclerPosts.get(position).getUsername());
+                intent.putExtra("text",recyclerPosts.get(position).getText());
+                intent.putExtra("smn",recyclerPosts.get(position).getSmn());
+                //intent.putExtra("images", recyclerPosts.get(position).getImageUrls());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return profileName.length;
+        return recyclerPosts.size();
     }
 
     public class postSearchViewHolder extends RecyclerView.ViewHolder{
 
         TextView profileNameView, postTextView;
         ImageView profileImageView, smnImageView;
-
+        ConstraintLayout detailsLayout;
         public postSearchViewHolder(@NonNull  View itemView) {
             super(itemView);
             profileNameView = itemView.findViewById(R.id.profileNameView);
             postTextView = itemView.findViewById(R.id.postTextView);
-            profileImageView = itemView.findViewById(R.id.profileImageView);
+            profileImageView = itemView.findViewById(R.id.postImageView);
             smnImageView = itemView.findViewById(R.id.smnImageView);
-
+            detailsLayout = itemView.findViewById(R.id.detailsLayout);
         }
     }
 }
