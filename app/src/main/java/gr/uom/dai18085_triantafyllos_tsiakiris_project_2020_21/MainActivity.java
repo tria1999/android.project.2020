@@ -27,10 +27,10 @@ public class MainActivity extends AppCompatActivity {
     private TwitterSession twitterSession;
     private static CallbackManager facebookCallbackManager;
     private static String EMAIL = "email";
-    private static AccessToken accessToken;
+    private static AccessToken facebookAccessToken;
 
     public static AccessToken getAccessToken() {
-        return accessToken;
+        return facebookAccessToken;
     }
 
 
@@ -103,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        facebookAccessToken = AccessToken.getCurrentAccessToken();
+        boolean isLoggedInFB = facebookAccessToken != null && !facebookAccessToken.isExpired();
 
     }
 
@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void goToShare() {
         Intent i = new Intent(this, ShareActivity.class);
+        i.putExtra("session", facebookAccessToken);
         startActivity(i);
 
     }

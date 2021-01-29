@@ -53,21 +53,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
                 .setOAuthAccessTokenSecret(this.getResources().getString(R.string.com_twitter_sdk_android_ACCESS_TOKEN_SECRET));
         TwitterFactory tf = new TwitterFactory(cb.build());
         Twitter twitter = tf.getInstance();
-/*
-        Random random = ThreadLocalRandom.current();
-        byte[] r = new byte[256]; //Means 2048 bit
-        random.nextBytes(r);
-        String nonce = new String(r);
-        authUri = Uri.parse(authorizationUrl)
-                .buildUpon()
-                .appendQueryParameter("oauth_consumer_key", "yopTn4IEXy4OVuEt2V2iinOyP")
-                .appendQueryParameter("oauth_nonce", nonce)
-                .appendQueryParameter("oauth_signature", "code")
-                .appendQueryParameter("oauth_signature_method", scopes.joinToString(separator = " "))
-                .appendQueryParameter("oauth_timestamp", uniqueState)
-                .appendQueryParameter("oauth_token",safafafa)
-                .appendQueryParameter("oauth_version", afaf)
-                .build()*/
+
         //test
 
         //Get trends from Twitter
@@ -139,29 +125,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
         });
 
     }
-    /*public static HttpHeaders createOAuthHeader(String httpMethod, String url, String text) {
 
-        String epochO = getCurrentEpochTimeAsString();
-        String nonceO = generateNonce();
-
-        //Map<String, String> map = createMap(oauth_consumer_keyA, oauth_tokenA, nonceA, epochA);
-        Map<String, String> map = createMap(oauth_consumer_keyA, oauth_tokenA, nonceO, epochO);
-
-        String parameterString = createParameterString(map);
-
-        String baseString = createOAuthBaseString(httpMethod, urlA, parameterString);
-
-        String signingKey = createOAuthSigningKey(oauth_consumer_secretA, oauth_token_secretA);
-
-        String signatureBase64 = createSignatureBase64(baseString, signingKey);
-
-        String headerString = createHeaderString(map, signatureBase64);
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("authorization", headerString);
-
-        return httpHeaders;
-*/
 
 }
 

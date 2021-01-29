@@ -47,6 +47,10 @@ public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.po
         switch (recyclerPosts.get(position).getSmn()){
             case "twitter": holder.smnImageView.setImageResource(R.drawable.twitter_logo);
                 break;
+            case "facebook": holder.smnImageView.setImageResource(R.drawable.facebook_logo);
+                break;
+            case "instagram": holder.smnImageView.setImageResource(R.drawable.instagram_logo);
+                break;
         }
 
         holder.detailsLayout.setOnClickListener(new View.OnClickListener() {

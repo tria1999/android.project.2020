@@ -4,11 +4,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -21,16 +21,10 @@ import com.facebook.share.widget.ShareDialog;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.tweetcomposer.ComposerActivity;
-import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 
 public class ShareActivity extends AppCompatActivity {
 
     private static final int RESULT_LOAD_IMAGE = 100;
-
-    private Button continueButton;
-    private Button selectImageButton;
-    private String shareText;
-    private TextView shareTextView;
     private Bitmap shareImage;
     private ImageView imageView;
     private Uri imageUri;
@@ -44,21 +38,31 @@ public class ShareActivity extends AppCompatActivity {
     private CheckBox postCheckBox;
     private EditText quoteEditText;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
-
+        //TODO fix twitter image post
         shareCheckBox = findViewById(R.id.shareCheckBox);
         tweetCheckBox = findViewById(R.id.tweetCheckBox);
         postCheckBox  = findViewById(R.id.postCheckBox);
+
         imageSelected = false;
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
 
         quoteEditText = findViewById(R.id.quoteEditText);
+        quoteEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                quoteEditText.setText("");
+            }
+        });
+        //select and display selected image
         imageView = findViewById(R.id.shareImageView);
-        selectImageButton = findViewById(R.id.selectImageButton);
+        Button selectImageButton = findViewById(R.id.selectImageButton);
         selectImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +72,16 @@ public class ShareActivity extends AppCompatActivity {
                 }
 
         });
+        //clear image
+        Button clearButton = findViewById(R.id.clearButton);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageUri = null;
+                imageView.setImageResource(R.drawable.ic_launcher_foreground);
+                imageSelected = false;
+            }
+        });
 
         final TwitterSession twitterSession = TwitterCore.getInstance().getSessionManager()
                 .getActiveSession();
@@ -76,11 +90,11 @@ public class ShareActivity extends AppCompatActivity {
 
 
         //post on requested social media
-        continueButton = findViewById(R.id.continueButton);
+        Button continueButton = findViewById(R.id.continueButton);
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //to share on facebook
+
                 //to post on instagram
                 if (postCheckBox.isChecked()) {
                     if (imageSelected) {
@@ -91,7 +105,7 @@ public class ShareActivity extends AppCompatActivity {
                         startActivity(Intent.createChooser(share, "Share to"));
 
                     }
-                }
+                }//to share on facebook
                 else if (shareCheckBox.isChecked()) {
                     shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
                         @Override
@@ -109,7 +123,6 @@ public class ShareActivity extends AppCompatActivity {
                             Toast.makeText(ShareActivity.this, "Error...", Toast.LENGTH_LONG);
                         }
                     });
-
                     if (imageSelected) {
                         shareImage = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
                         SharePhoto photo = new SharePhoto.Builder()
@@ -129,11 +142,11 @@ public class ShareActivity extends AppCompatActivity {
 
                     }
 
-                }
+                }//to tweet
                 if(tweetCheckBox.isChecked()) {
                     if (imageSelected) {
                         if (twitterSession != null)
-                        {
+                        {   System.out.println(imageUri.toString());
                             final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
                                     .session(twitterSession)
                                     .image(imageUri)
@@ -142,15 +155,22 @@ public class ShareActivity extends AppCompatActivity {
                                     .createIntent();
                             startActivity(intent);
                         }
+                        else
+                            Toast.makeText(ShareActivity.this,"Not logged in on Twitter!", Toast.LENGTH_LONG).show();
                     }
                     else
                     {
-                        final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
-                                .session(twitterSession)
-                                .text(quoteEditText.getText().toString())
-                                .hashtags("UOMDAIAndroidProject")
-                                .createIntent();
-                        startActivity(intent);
+                        if (twitterSession != null)
+                            {
+                                final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
+                                    .session(twitterSession)
+                                    .text(quoteEditText.getText().toString())
+                                    .hashtags("UOMDAIAndroidProject")
+                                    .createIntent();
+                            startActivity(intent);
+                            }
+                    else
+                        Toast.makeText(ShareActivity.this,"Not logged in on Twitter!", Toast.LENGTH_LONG).show();
                     }
 
                 }
