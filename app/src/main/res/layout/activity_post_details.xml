@@ -15,19 +15,31 @@
             app:layout_constraintStart_toEndOf="@+id/dProfileImageView"/>
     <TextView
             android:text="TextView"
-            android:layout_width="283dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content" android:id="@+id/dPostTextView"
             app:layout_constraintStart_toEndOf="@+id/dProfileImageView" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dUsernameView"/>
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:srcCompat="@tools:sample/avatars"
+            android:layout_width="100dp"
+            android:layout_height="100dp" tools:srcCompat="@drawable/ic_launcher_foreground"
             android:id="@+id/dProfileImageView"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
     <ImageView
-            android:layout_width="345dp"
-            android:layout_height="356dp" app:srcCompat="@drawable/ic_launcher_foreground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" app:srcCompat="@drawable/ic_launcher_foreground"
             android:id="@+id/dPostImageView"
-            app:layout_constraintTop_toBottomOf="@+id/dProfileImageView" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintTop_toBottomOf="@+id/dPostTextView" android:layout_marginTop="10dp"
+            app:layout_constraintStart_toEndOf="@+id/dProfileImageView"/>
+    <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="0dp"
+            android:layout_height="450dp"
+            android:id="@+id/repliesRecyclerView" app:layout_constraintTop_toBottomOf="@+id/textView3"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <TextView
+            android:text="Replies:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/textView3"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/dPostImageView"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,17 +12,20 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
+import twitter4j.Status;
 
 import java.util.List;
 
-public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.postSearchViewHolder> {
+public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.postSearchViewHolder> {
+
 
     Context context;
     List<RecyclerPost> recyclerPosts;
-    public postSearchAdapter(Context context, List<RecyclerPost> recyclerPosts){
+    public PostSearchAdapter(Context context, List<RecyclerPost> recyclerPosts){
 
         this.context = context;
         this.recyclerPosts = recyclerPosts;
+
 
     }
 
@@ -39,19 +42,14 @@ public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.po
     public void onBindViewHolder(@NonNull postSearchViewHolder holder, int position) {
         holder.profileNameView.setText(recyclerPosts.get(position).getUsername());
         holder.postTextView.setText(recyclerPosts.get(position).getText());
-
-        if(!recyclerPosts.get(position).getImageUrls().isEmpty())
-        {
-
-            Uri uri = Uri.parse(recyclerPosts.get(position).getProfileImage());
-            Picasso.with(context)
-                    .load(uri)
-                    .resize(holder.profileImageView.getMaxWidth(), holder.profileImageView.getMaxHeight())
-                    .centerInside()
-                    .into(holder.profileImageView);
+        Uri uri = Uri.parse(recyclerPosts.get(position).getProfileImage());
+        Picasso.with(context)
+                .load(uri)
+                .resize(holder.profileImageView.getMaxWidth(), holder.profileImageView.getMaxHeight())
+                .centerInside()
+                .into(holder.profileImageView);
             //holder.postImageView.setImageURI(uri);
 
-        }
         switch (recyclerPosts.get(position).getSmn()){
             case "twitter": holder.smnImageView.setImageResource(R.drawable.twitter_logo);
                 break;

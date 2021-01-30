@@ -24,7 +24,7 @@ public class TwitterSearchForPosts implements Runnable{
     public void run() {
 
         Query query = new Query(selectedHashtag);
-        query.setCount(20);
+        query.setCount(100);
         try{
             // The factory instance is re-useable and thread safe.
             result = twitter.search(query);

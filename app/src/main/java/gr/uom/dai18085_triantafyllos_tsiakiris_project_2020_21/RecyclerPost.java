@@ -12,40 +12,25 @@ public class RecyclerPost {
     private String username;
     private String text;
     private String smn;
-    private MediaEntity[] mediaEntities;
-    private List<String> ImageUrls;
+    //private MediaEntity[] mediaEntities;
+    //private List<String> ImageUrls;
     private String profileImage;
-    public RecyclerPost(String username, String text, String smn, MediaEntity[] mediaEntities, String profileImage) {
+
+    public RecyclerPost(String username, String text, String smn, String profileImage) {
         this.username = username;
         this.text = text;
         this.smn = smn;
-        this.mediaEntities = mediaEntities;
+        //this.mediaEntities = mediaEntities;
         this.profileImage = profileImage;
 
-        ImageUrls = new ArrayList<>();
+        /*ImageUrls = new ArrayList<>();
         for(int i=0;i< mediaEntities.length;i++)
         {
             if(mediaEntities[i].getType().equals("photo")){
                 ImageUrls.add(mediaEntities[i].getMediaURL());
             }
-        }
+        }*/
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -74,21 +59,6 @@ public class RecyclerPost {
         this.smn = smn;
     }
 
-    public MediaEntity[] getMediaEntities() {
-        return mediaEntities;
-    }
-
-    public void setMediaEntities(MediaEntity[] mediaEntities) {
-        this.mediaEntities = mediaEntities;
-    }
-
-    public List<String> getImageUrls() {
-        return ImageUrls;
-    }
-
-    public void setImageUrls(List<String> imageUrls) {
-        ImageUrls = imageUrls;
-    }
 
     public String getProfileImage() {
         return profileImage;

@@ -27,9 +27,9 @@ public class HashtagSearchActivity extends AppCompatActivity {
     private TrendsPasser trendsPasser;
     private TwitterSearchForPosts twitterSearcher;
     private Object trendsLock,searchLock;
-    private postSearchAdapter postSearchAdapter;
+    private PostSearchAdapter postSearchAdapter;
     private List<RecyclerPost> recyclerPosts;
-
+    public static List<Status> replies;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,14 +106,15 @@ public class HashtagSearchActivity extends AppCompatActivity {
                             searchLock.wait();
                             QueryResult searchResult = twitterSearcher.getResult();
                             recyclerPosts = new ArrayList<>();
+                            replies = new ArrayList<>();
                             for(Status s: searchResult.getTweets())
                             {
-                                //List<Status> replies = new ArrayList<>();
-                                //if (s.getInReplyToStatusId() == s.getId()&&s.getUser().isFollowRequestSent())
-                                //    replies.add(s);
-                                recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getMediaEntities(),s.getUser().get400x400ProfileImageURL()));
+                                recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getUser().get400x400ProfileImageURL()));
+                                for(Status r: searchResult.getTweets())
+                                    if (r.getInReplyToStatusId() == s.getId()&&r.getUser().isFollowRequestSent()&&(s.getId()!=r.getId()))
+                                        replies.add(s);
                             }
-                            postSearchAdapter = new postSearchAdapter(HashtagSearchActivity.this,recyclerPosts);
+                            postSearchAdapter = new PostSearchAdapter(HashtagSearchActivity.this,recyclerPosts);
                             resultRecyclerView.setAdapter(postSearchAdapter);
                             resultRecyclerView.setLayoutManager(new LinearLayoutManager(HashtagSearchActivity.this));
                         } catch (InterruptedException e) {

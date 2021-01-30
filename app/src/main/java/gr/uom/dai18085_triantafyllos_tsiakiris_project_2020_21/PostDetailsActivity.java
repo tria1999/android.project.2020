@@ -1,20 +1,31 @@
 package gr.uom.dai18085_triantafyllos_tsiakiris_project_2020_21;
 
 import android.net.Uri;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
+import twitter4j.MediaEntity;
+import twitter4j.Status;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostDetailsActivity extends AppCompatActivity {
 
     ImageView profileImageView,postImageView;
     TextView usernameView, postTextView;
-
+    RecyclerView repliesRecyclerView;
     String username,text, smn, profileImage;
+    PostSearchAdapter postSearchAdapter;
     Uri profileImageUri;
+    List<Status> replies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +36,8 @@ public class PostDetailsActivity extends AppCompatActivity {
         postImageView = findViewById(R.id.dPostImageView);
         usernameView = findViewById(R.id.dUsernameView);
         postTextView = findViewById(R.id.dPostTextView);
-
+        repliesRecyclerView = findViewById(R.id.repliesRecyclerView);
+        replies = new ArrayList<>();
         getData();
         setData();
     }
@@ -39,21 +51,30 @@ public class PostDetailsActivity extends AppCompatActivity {
             profileImage = getIntent().getStringExtra("profileImage");
             profileImageUri = Uri.parse(profileImage);
 
+
         }
+
         else{
-            Toast.makeText(this,"No data.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"No data.", Toast.LENGTH_LONG).show();
         }
+        replies =HashtagSearchActivity.replies;
     }
 
     private void setData(){
         usernameView.setText(username);
         postTextView.setText(text);
-        Picasso.with(this)
-                .load(profileImageUri)
-                .resize(profileImageView.getMaxWidth(), profileImageView.getMaxHeight())
-                .centerInside()
-                .into(profileImageView);
+        profileImageView.setImageURI(profileImageUri);
+        List<RecyclerPost> recyclerPosts = new ArrayList<>();
+        recyclerPosts.add(new RecyclerPost("test user","this is a fake post","facebook","@drawable/ic_launcher_foreground"));
+        for(Status s: replies)
+        {
+            recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getUser().get400x400ProfileImageURL()));
+        }
 
+
+        postSearchAdapter = new PostSearchAdapter(PostDetailsActivity.this,recyclerPosts);
+        repliesRecyclerView.setAdapter(postSearchAdapter);
+        repliesRecyclerView.setLayoutManager(new LinearLayoutManager(PostDetailsActivity.this));
     }
 
 }
