@@ -1,6 +1,5 @@
 package gr.uom.dai18085_triantafyllos_tsiakiris_project_2020_21;
 
-import android.net.Uri;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +25,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
     private trendingAdapter trendingAdapter;
     private Trends trends;
     private TrendsPasser trendsPasser;
-    private SearchForPosts searcher;
+    private TwitterSearchForPosts twitterSearcher;
     private Object trendsLock,searchLock;
     private postSearchAdapter postSearchAdapter;
     private List<RecyclerPost> recyclerPosts;
@@ -58,9 +57,6 @@ public class HashtagSearchActivity extends AppCompatActivity {
 
         //Get trends from Twitter
         trending = new ArrayList<>();
-        trending.add("#covid19");
-        trending.add("#whoCaresAboutAmericanPolitics");
-        trending.add("#someRandomHashtag");
 
         trendsPasser = new TrendsPasser(twitter,trends,trending, trendsLock);
         Thread trendsThread = new Thread(trendsPasser);
@@ -101,18 +97,22 @@ public class HashtagSearchActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selectedHashtag = hashtagSearchText.getText().toString();
                 Toast.makeText(HashtagSearchActivity.this, "Searching for "+selectedHashtag,Toast.LENGTH_LONG).show();
-                searcher = new SearchForPosts(twitter,selectedHashtag, searchLock);
-                Thread searchThread = new Thread(searcher);
+                twitterSearcher = new TwitterSearchForPosts(twitter,selectedHashtag, searchLock);
+                Thread searchThread = new Thread(twitterSearcher);
                 searchThread.start();
                 synchronized(searchLock) {
-                    if (!searcher.done) {
+                    if (!twitterSearcher.done) {
                         try {
                             searchLock.wait();
-                            QueryResult searchResult = searcher.getResult();
+                            QueryResult searchResult = twitterSearcher.getResult();
                             recyclerPosts = new ArrayList<>();
                             for(Status s: searchResult.getTweets())
-                                recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getMediaEntities()));
-
+                            {
+                                //List<Status> replies = new ArrayList<>();
+                                //if (s.getInReplyToStatusId() == s.getId()&&s.getUser().isFollowRequestSent())
+                                //    replies.add(s);
+                                recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getMediaEntities(),s.getUser().get400x400ProfileImageURL()));
+                            }
                             postSearchAdapter = new postSearchAdapter(HashtagSearchActivity.this,recyclerPosts);
                             resultRecyclerView.setAdapter(postSearchAdapter);
                             resultRecyclerView.setLayoutManager(new LinearLayoutManager(HashtagSearchActivity.this));
@@ -120,6 +120,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
                         }
                     }
                 }
+
 
             }
         });

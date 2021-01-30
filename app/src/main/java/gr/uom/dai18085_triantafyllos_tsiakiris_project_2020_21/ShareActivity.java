@@ -1,6 +1,8 @@
 package gr.uom.dai18085_triantafyllos_tsiakiris_project_2020_21;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -8,7 +10,10 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.*;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -21,6 +26,10 @@ import com.facebook.share.widget.ShareDialog;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.tweetcomposer.ComposerActivity;
+import twitter4j.*;
+
+import java.io.File;
+import java.net.URISyntaxException;
 
 public class ShareActivity extends AppCompatActivity {
 
@@ -37,14 +46,14 @@ public class ShareActivity extends AppCompatActivity {
     private CheckBox tweetCheckBox;
     private CheckBox postCheckBox;
     private EditText quoteEditText;
-
+    private static final int STORAGE_PERMISSION_CODE = 101;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
-        //TODO fix twitter image post
+
         shareCheckBox = findViewById(R.id.shareCheckBox);
         tweetCheckBox = findViewById(R.id.tweetCheckBox);
         postCheckBox  = findViewById(R.id.postCheckBox);
@@ -85,8 +94,17 @@ public class ShareActivity extends AppCompatActivity {
 
         final TwitterSession twitterSession = TwitterCore.getInstance().getSessionManager()
                 .getActiveSession();
-
-
+        //request permissions
+        if(ContextCompat.checkSelfPermission(ShareActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat
+                    .requestPermissions(
+                            ShareActivity.this,
+                            new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                            STORAGE_PERMISSION_CODE);
+        }
 
 
         //post on requested social media
@@ -103,7 +121,7 @@ public class ShareActivity extends AppCompatActivity {
                         share.setType("image/*");
                         share.putExtra(Intent.EXTRA_STREAM, imageUri);
                         startActivity(Intent.createChooser(share, "Share to"));
-
+                        Toast.makeText(ShareActivity.this,"Post Created!", Toast.LENGTH_LONG).show();
                     }
                 }//to share on facebook
                 else if (shareCheckBox.isChecked()) {
@@ -132,13 +150,14 @@ public class ShareActivity extends AppCompatActivity {
                                 .addPhoto(photo)
                                 .build();
                         shareDialog.show(photoContent);
+                        Toast.makeText(ShareActivity.this,"Post Created!", Toast.LENGTH_LONG).show();
                     } else {
                         ShareLinkContent content = new ShareLinkContent.Builder()
                                 .setContentUrl(Uri.parse("https://github.com/UomMobileDevelopment/Project_2020-21"))
                                 .setQuote(quoteEditText.getText().toString())
                                 .build();
                         shareDialog.show(content);
-
+                        Toast.makeText(ShareActivity.this,"Post Created!", Toast.LENGTH_LONG).show();
 
                     }
 
@@ -146,7 +165,8 @@ public class ShareActivity extends AppCompatActivity {
                 if(tweetCheckBox.isChecked()) {
                     if (imageSelected) {
                         if (twitterSession != null)
-                        {   System.out.println(imageUri.toString());
+                        {
+
                             final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
                                     .session(twitterSession)
                                     .image(imageUri)
@@ -154,6 +174,7 @@ public class ShareActivity extends AppCompatActivity {
                                     .hashtags("UOMDAIAndroidProject")
                                     .createIntent();
                             startActivity(intent);
+                            Toast.makeText(ShareActivity.this,"Post Created!", Toast.LENGTH_LONG).show();
                         }
                         else
                             Toast.makeText(ShareActivity.this,"Not logged in on Twitter!", Toast.LENGTH_LONG).show();
@@ -161,14 +182,15 @@ public class ShareActivity extends AppCompatActivity {
                     else
                     {
                         if (twitterSession != null)
-                            {
-                                final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
+                        {
+                            final Intent intent = new ComposerActivity.Builder(ShareActivity.this)
                                     .session(twitterSession)
                                     .text(quoteEditText.getText().toString())
                                     .hashtags("UOMDAIAndroidProject")
                                     .createIntent();
                             startActivity(intent);
-                            }
+                            Toast.makeText(ShareActivity.this,"Post Created!", Toast.LENGTH_LONG).show();
+                        }
                     else
                         Toast.makeText(ShareActivity.this,"Not logged in on Twitter!", Toast.LENGTH_LONG).show();
                     }
@@ -191,5 +213,30 @@ public class ShareActivity extends AppCompatActivity {
         }
     }
 
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        super
+                .onRequestPermissionsResult(requestCode,
+                        permissions,
+                        grantResults);
+
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(ShareActivity.this,
+                        "Storage Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else {
+                Toast.makeText(ShareActivity.this,
+                        "Storage Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+    }
 
 }

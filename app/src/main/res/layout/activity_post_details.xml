@@ -26,7 +26,7 @@
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
     <ImageView
             android:layout_width="345dp"
-            android:layout_height="356dp" app:srcCompat="@drawable/tw__ic_logo_default"
+            android:layout_height="356dp" app:srcCompat="@drawable/ic_launcher_foreground"
             android:id="@+id/dPostImageView"
             app:layout_constraintTop_toBottomOf="@+id/dProfileImageView" app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>

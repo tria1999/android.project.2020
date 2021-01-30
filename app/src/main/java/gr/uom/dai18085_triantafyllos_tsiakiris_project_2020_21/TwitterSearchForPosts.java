@@ -5,7 +5,7 @@ import twitter4j.*;
 
 import java.util.List;
 
-public class SearchForPosts implements Runnable{
+public class TwitterSearchForPosts implements Runnable{
 
     private Twitter twitter;
     private String selectedHashtag;
@@ -13,7 +13,7 @@ public class SearchForPosts implements Runnable{
     private Object lock;
     private QueryResult result;
 
-    public SearchForPosts(Twitter twitter, String selectedHashtag, Object lock) {
+    public TwitterSearchForPosts(Twitter twitter, String selectedHashtag, Object lock) {
         this.twitter = twitter;
         this.selectedHashtag = selectedHashtag;
         this.lock = lock;

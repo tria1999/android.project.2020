@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -38,10 +39,17 @@ public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.po
     public void onBindViewHolder(@NonNull postSearchViewHolder holder, int position) {
         holder.profileNameView.setText(recyclerPosts.get(position).getUsername());
         holder.postTextView.setText(recyclerPosts.get(position).getText());
+
         if(!recyclerPosts.get(position).getImageUrls().isEmpty())
         {
-            Uri uri = Uri.parse(recyclerPosts.get(position).getImageUrls().get(0));
-            holder.profileImageView.setImageURI(uri);
+
+            Uri uri = Uri.parse(recyclerPosts.get(position).getProfileImage());
+            Picasso.with(context)
+                    .load(uri)
+                    .resize(holder.profileImageView.getMaxWidth(), holder.profileImageView.getMaxHeight())
+                    .centerInside()
+                    .into(holder.profileImageView);
+            //holder.postImageView.setImageURI(uri);
 
         }
         switch (recyclerPosts.get(position).getSmn()){
@@ -60,7 +68,7 @@ public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.po
                 intent.putExtra("username",recyclerPosts.get(position).getUsername());
                 intent.putExtra("text",recyclerPosts.get(position).getText());
                 intent.putExtra("smn",recyclerPosts.get(position).getSmn());
-                //intent.putExtra("images", recyclerPosts.get(position).getImageUrls());
+                intent.putExtra("profileImage", recyclerPosts.get(position).getProfileImage());
                 context.startActivity(intent);
             }
         });
@@ -80,7 +88,7 @@ public class postSearchAdapter extends RecyclerView.Adapter<postSearchAdapter.po
             super(itemView);
             profileNameView = itemView.findViewById(R.id.profileNameView);
             postTextView = itemView.findViewById(R.id.postTextView);
-            profileImageView = itemView.findViewById(R.id.postImageView);
+            profileImageView = itemView.findViewById(R.id.profileImageView);
             smnImageView = itemView.findViewById(R.id.smnImageView);
             detailsLayout = itemView.findViewById(R.id.detailsLayout);
         }
