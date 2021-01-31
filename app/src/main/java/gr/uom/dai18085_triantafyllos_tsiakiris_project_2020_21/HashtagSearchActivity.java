@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +31,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
     private PostSearchAdapter postSearchAdapter;
     private List<RecyclerPost> recyclerPosts;
     public static List<Status> replies;
+    private boolean searchPerformed = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +80,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
         hashtagSearchText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hashtagSearchText.setText("");
+                hashtagSearchText.setText("#");
             }
         });
 //https://graph.facebook.com/v9.0/ig_hashtag_search?user_id=17841405309211844&q="+hashtag+"&access_token="+MainActivity.getAccessToken()
@@ -91,12 +93,12 @@ public class HashtagSearchActivity extends AppCompatActivity {
         });
 
 
-
+        //search
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectedHashtag = hashtagSearchText.getText().toString();
-                Toast.makeText(HashtagSearchActivity.this, "Searching for "+selectedHashtag,Toast.LENGTH_LONG).show();
+                Toast.makeText(HashtagSearchActivity.this, "Searching for "+selectedHashtag,Toast.LENGTH_SHORT).show();
                 twitterSearcher = new TwitterSearchForPosts(twitter,selectedHashtag, searchLock);
                 Thread searchThread = new Thread(twitterSearcher);
                 searchThread.start();
@@ -107,27 +109,52 @@ public class HashtagSearchActivity extends AppCompatActivity {
                             QueryResult searchResult = twitterSearcher.getResult();
                             recyclerPosts = new ArrayList<>();
                             replies = new ArrayList<>();
+                            List<ArrayList<String>> imageUrls = new ArrayList<>();
                             for(Status s: searchResult.getTweets())
-                            {
+                            {   //make recycler post
                                 recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getUser().get400x400ProfileImageURL()));
                                 for(Status r: searchResult.getTweets())
                                     if (r.getInReplyToStatusId() == s.getId()&&r.getUser().isFollowRequestSent()&&(s.getId()!=r.getId()))
                                         replies.add(s);
+                                //prepare to pass the photos to details activity
+                                ArrayList<String> statusImageUrls = new ArrayList<String>();
+                                for(int i=0;i< s.getMediaEntities().length;i++)
+                                {
+                                    if(s.getMediaEntities()[i].getType().equals("photo")){
+                                        statusImageUrls.add(s.getMediaEntities()[i].getMediaURL());
+                                    }
+                                }
+                                imageUrls.add(statusImageUrls);
                             }
                             postSearchAdapter = new PostSearchAdapter(HashtagSearchActivity.this,recyclerPosts);
+                            postSearchAdapter.passImages(imageUrls);
                             resultRecyclerView.setAdapter(postSearchAdapter);
                             resultRecyclerView.setLayoutManager(new LinearLayoutManager(HashtagSearchActivity.this));
                         } catch (InterruptedException e) {
                         }
+
                     }
                 }
-
+                searchPerformed = true;
 
             }
         });
 
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull @org.jetbrains.annotations.NotNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("searchPerformed",searchPerformed);
+        outState.putString("selectedHashtag",selectedHashtag);
+    }
 
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        hashtagSearchText.setText(savedInstanceState.getString("selectedHashtag"));
+        if(savedInstanceState.getBoolean("searchPerformed"))
+            searchButton.performClick();
+    }
 }
 

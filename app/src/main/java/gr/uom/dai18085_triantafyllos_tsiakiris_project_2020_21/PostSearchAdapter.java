@@ -2,6 +2,8 @@ package gr.uom.dai18085_triantafyllos_tsiakiris_project_2020_21;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,18 +16,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 import twitter4j.Status;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.postSearchViewHolder> {
 
 
-    Context context;
-    List<RecyclerPost> recyclerPosts;
+    private Context context;
+    private List<RecyclerPost> recyclerPosts;
+    public List<ArrayList<String>> imageUrls;
     public PostSearchAdapter(Context context, List<RecyclerPost> recyclerPosts){
 
         this.context = context;
         this.recyclerPosts = recyclerPosts;
-
+        this.imageUrls = new ArrayList<>();
 
     }
 
@@ -42,11 +49,10 @@ public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.po
     public void onBindViewHolder(@NonNull postSearchViewHolder holder, int position) {
         holder.profileNameView.setText(recyclerPosts.get(position).getUsername());
         holder.postTextView.setText(recyclerPosts.get(position).getText());
-        Uri uri = Uri.parse(recyclerPosts.get(position).getProfileImage());
-        Picasso.with(context)
-                .load(uri)
-                .resize(holder.profileImageView.getMaxWidth(), holder.profileImageView.getMaxHeight())
-                .centerInside()
+
+
+        Picasso.get()
+                .load(recyclerPosts.get(position).getProfileImage().replace("http:", "https:"))
                 .into(holder.profileImageView);
             //holder.postImageView.setImageURI(uri);
 
@@ -67,9 +73,21 @@ public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.po
                 intent.putExtra("text",recyclerPosts.get(position).getText());
                 intent.putExtra("smn",recyclerPosts.get(position).getSmn());
                 intent.putExtra("profileImage", recyclerPosts.get(position).getProfileImage());
+                if(!imageUrls.isEmpty())
+                    intent.putStringArrayListExtra("imageUrls",imageUrls.get(position));
+                else
+                {
+                    ArrayList<String> emptyList = new ArrayList<>();
+                    emptyList.add("empty");
+                    intent.putStringArrayListExtra("imageUrls",emptyList);
+                }
                 context.startActivity(intent);
             }
         });
+    }
+
+    public void passImages(List<ArrayList<String>> imageUrls){
+        this.imageUrls = imageUrls;
     }
 
     @Override

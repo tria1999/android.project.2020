@@ -24,7 +24,7 @@ public class PostDetailsActivity extends AppCompatActivity {
     RecyclerView repliesRecyclerView;
     String username,text, smn, profileImage;
     PostSearchAdapter postSearchAdapter;
-    Uri profileImageUri;
+    List<String> imageUrls;
     List<Status> replies;
 
     @Override
@@ -44,12 +44,14 @@ public class PostDetailsActivity extends AppCompatActivity {
 
     private void getData(){
         if(getIntent().hasExtra("username")&&getIntent().hasExtra("text")&&
-                getIntent().hasExtra("smn")&&getIntent().hasExtra("profileImage")){
+                getIntent().hasExtra("smn")&&getIntent().hasExtra("profileImage")
+                &&getIntent().hasExtra("imageUrls")){
             username = getIntent().getStringExtra("username");
             text = getIntent().getStringExtra("text");
             smn= getIntent().getStringExtra("smn");
             profileImage = getIntent().getStringExtra("profileImage");
-            profileImageUri = Uri.parse(profileImage);
+            imageUrls = getIntent().getStringArrayListExtra("imageUrls");
+
 
 
         }
@@ -63,7 +65,14 @@ public class PostDetailsActivity extends AppCompatActivity {
     private void setData(){
         usernameView.setText(username);
         postTextView.setText(text);
-        profileImageView.setImageURI(profileImageUri);
+        Picasso.get()
+                .load(profileImage.replace("http:", "https:"))
+                .into(profileImageView);
+        if(!imageUrls.isEmpty())
+            if(!imageUrls.get(0).equals("empty"))
+                Picasso.get()
+                        .load(imageUrls.get(0).replace("http:", "https:"))
+                        .into(postImageView);
         List<RecyclerPost> recyclerPosts = new ArrayList<>();
         recyclerPosts.add(new RecyclerPost("test user","this is a fake post","facebook","@drawable/ic_launcher_foreground"));
         for(Status s: replies)

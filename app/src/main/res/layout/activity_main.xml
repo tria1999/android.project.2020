@@ -6,40 +6,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Log in"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="60dp" android:id="@+id/title" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-    <com.facebook.login.widget.LoginButton
-            android:id="@+id/login_button"
-            android:layout_width="193dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/title"
-            android:layout_marginTop="88dp"/>
-    <com.twitter.sdk.android.core.identity.TwitterLoginButton
-            android:id="@+id/twitter_login_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/login_button" android:layout_marginTop="28dp"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
-    <Button
-            android:text="Create a Post"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/toShareActivity"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            android:layout_marginTop="68dp" app:layout_constraintTop_toBottomOf="@+id/twitter_login_button"/>
-    <Button
-            android:text="Hashtag Search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/goToHashtagSearchButton"
-            android:layout_marginTop="40dp"
-            app:layout_constraintTop_toBottomOf="@+id/toShareActivity" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <Button
+                    android:text="Hashtag Search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/goToHashtagSearchButton"
+                    app:layout_constraintTop_toBottomOf="@+id/twitter_login_button" android:layout_marginTop="50dp"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Log in"
+                    android:id="@+id/title"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="80dp"/>
+            <com.twitter.sdk.android.core.identity.TwitterLoginButton
+                    android:id="@+id/twitter_login_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/login_button"
+                    android:layout_marginTop="20dp" app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+            <com.facebook.login.widget.LoginButton
+                    android:id="@+id/login_button"
+                    android:layout_width="193dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/title"
+                    android:layout_marginTop="60dp" app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+            <Button
+                    android:text="Create a Post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/toShareActivity"
+                    app:layout_constraintTop_toBottomOf="@+id/goToHashtagSearchButton" android:layout_marginTop="20dp"
+                    app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
