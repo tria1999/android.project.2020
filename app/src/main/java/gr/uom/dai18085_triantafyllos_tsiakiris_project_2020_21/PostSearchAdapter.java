@@ -108,12 +108,7 @@ public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.po
                     intent.putStringArrayListExtra("rProfileImage",rProfileImage);
 
                 }
-                else
-                {
-                    ArrayList<String> emptyList = new ArrayList<>();
-                    emptyList.add("empty");
-                    intent.putStringArrayListExtra("imageUrls",emptyList);
-                }
+
                 context.startActivity(intent);
             }
         });
