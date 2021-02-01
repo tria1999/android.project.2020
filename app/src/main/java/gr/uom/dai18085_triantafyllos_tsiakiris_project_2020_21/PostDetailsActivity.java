@@ -25,7 +25,8 @@ public class PostDetailsActivity extends AppCompatActivity {
     String username,text, smn, profileImage;
     PostSearchAdapter postSearchAdapter;
     List<String> imageUrls;
-    List<Status> replies;
+    ArrayList<Status> replies;
+    List<RecyclerPost> recyclerPosts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class PostDetailsActivity extends AppCompatActivity {
         postTextView = findViewById(R.id.dPostTextView);
         repliesRecyclerView = findViewById(R.id.repliesRecyclerView);
         replies = new ArrayList<>();
+        recyclerPosts = new ArrayList<>();
         getData();
         setData();
     }
@@ -51,15 +53,25 @@ public class PostDetailsActivity extends AppCompatActivity {
             smn= getIntent().getStringExtra("smn");
             profileImage = getIntent().getStringExtra("profileImage");
             imageUrls = getIntent().getStringArrayListExtra("imageUrls");
+            if(getIntent().hasExtra("rNames")&&getIntent().hasExtra("rText")&&
+                    getIntent().hasExtra("rSmn")&&getIntent().hasExtra("rProfileImage")){
+                for(int i=0;i< getIntent().getStringArrayListExtra("rNames").size();i++)
+                {
+                    recyclerPosts.add(new RecyclerPost(
+                            getIntent().getStringArrayListExtra("rNames").get(i),
+                            getIntent().getStringArrayListExtra("rText").get(i),
+                            getIntent().getStringArrayListExtra("rSmn").get(i),
+                            getIntent().getStringArrayListExtra("rProfileImage").get(i)
+                            ));
+                }
 
-
-
+            }
         }
 
         else{
             Toast.makeText(this,"No data.", Toast.LENGTH_LONG).show();
         }
-        replies =HashtagSearchActivity.replies;
+
     }
 
     private void setData(){
@@ -73,12 +85,10 @@ public class PostDetailsActivity extends AppCompatActivity {
                 Picasso.get()
                         .load(imageUrls.get(0).replace("http:", "https:"))
                         .into(postImageView);
-        List<RecyclerPost> recyclerPosts = new ArrayList<>();
-        recyclerPosts.add(new RecyclerPost("test user","this is a fake post","facebook","@drawable/ic_launcher_foreground"));
-        for(Status s: replies)
-        {
-            recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getUser().get400x400ProfileImageURL()));
-        }
+
+        if(recyclerPosts.isEmpty())
+            recyclerPosts.add(new RecyclerPost("Test User","This is a fake post, there are no replies!","facebook","@drawable/ic_launcher_foreground"));
+
 
 
         postSearchAdapter = new PostSearchAdapter(PostDetailsActivity.this,recyclerPosts);

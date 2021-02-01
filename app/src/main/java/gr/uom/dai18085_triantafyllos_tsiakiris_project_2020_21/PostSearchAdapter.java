@@ -28,11 +28,14 @@ public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.po
     private Context context;
     private List<RecyclerPost> recyclerPosts;
     public List<ArrayList<String>> imageUrls;
+    private ArrayList<Status> replies;
+
     public PostSearchAdapter(Context context, List<RecyclerPost> recyclerPosts){
 
         this.context = context;
         this.recyclerPosts = recyclerPosts;
         this.imageUrls = new ArrayList<>();
+        this.replies = new ArrayList<>();
 
     }
 
@@ -81,6 +84,36 @@ public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.po
                     emptyList.add("empty");
                     intent.putStringArrayListExtra("imageUrls",emptyList);
                 }
+                if(!replies.isEmpty())
+                {
+                    ArrayList<String> rNames = new ArrayList<>();
+                    for (Status s: replies){
+                        rNames.add(s.getUser().getName());
+                    }
+                    ArrayList<String> rText = new ArrayList<>();
+                    for (Status s: replies){
+                        rNames.add(s.getText());
+                    }
+                    ArrayList<String> rSmn = new ArrayList<>();
+                    for (Status s: replies){
+                        rNames.add("twitter");
+                    }
+                    ArrayList<String> rProfileImage = new ArrayList<>();
+                    for (Status s: replies){
+                        rNames.add(s.getUser().get400x400ProfileImageURLHttps());
+                    }
+                    intent.putStringArrayListExtra("rNames",rNames);
+                    intent.putStringArrayListExtra("rText",rText);
+                    intent.putStringArrayListExtra("rSmn",rSmn);
+                    intent.putStringArrayListExtra("rProfileImage",rProfileImage);
+
+                }
+                else
+                {
+                    ArrayList<String> emptyList = new ArrayList<>();
+                    emptyList.add("empty");
+                    intent.putStringArrayListExtra("imageUrls",emptyList);
+                }
                 context.startActivity(intent);
             }
         });
@@ -89,7 +122,9 @@ public class PostSearchAdapter extends RecyclerView.Adapter<PostSearchAdapter.po
     public void passImages(List<ArrayList<String>> imageUrls){
         this.imageUrls = imageUrls;
     }
-
+    public void passReplies(ArrayList<Status> replies){
+        this.replies = replies;
+    }
     @Override
     public int getItemCount() {
         return recyclerPosts.size();

@@ -27,11 +27,12 @@ public class HashtagSearchActivity extends AppCompatActivity {
     private Trends trends;
     private TrendsPasser trendsPasser;
     private TwitterSearchForPosts twitterSearcher;
-    private Object trendsLock,searchLock;
+    private Object trendsLock,searchLock,repliesLock;
     private PostSearchAdapter postSearchAdapter;
     private List<RecyclerPost> recyclerPosts;
-    public static List<Status> replies;
+    public ArrayList<Status> replies;
     private boolean searchPerformed = false;
+    private boolean done;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +40,7 @@ public class HashtagSearchActivity extends AppCompatActivity {
 
         trendsLock = new Object();
         searchLock= new Object();
-
+        repliesLock = new Object();
         setButton = findViewById(R.id.setButton);
         searchButton = findViewById(R.id.searchButton);
         hashtagSearchText = findViewById(R.id.hashtagSearchText);
@@ -106,6 +107,8 @@ public class HashtagSearchActivity extends AppCompatActivity {
                     if (!twitterSearcher.done) {
                         try {
                             searchLock.wait();
+                        } catch (InterruptedException e) {
+                        }
                             QueryResult searchResult = twitterSearcher.getResult();
                             recyclerPosts = new ArrayList<>();
                             replies = new ArrayList<>();
@@ -113,9 +116,9 @@ public class HashtagSearchActivity extends AppCompatActivity {
                             for(Status s: searchResult.getTweets())
                             {   //make recycler post
                                 recyclerPosts.add(new RecyclerPost(s.getUser().getName(),s.getText(),"twitter",s.getUser().get400x400ProfileImageURL()));
-                                for(Status r: searchResult.getTweets())
+                                /*for(Status r: searchResult.getTweets())
                                     if (r.getInReplyToStatusId() == s.getId()&&r.getUser().isFollowRequestSent()&&(s.getId()!=r.getId()))
-                                        replies.add(s);
+                                        replies.add(s);*/
                                 //prepare to pass the photos to details activity
                                 ArrayList<String> statusImageUrls = new ArrayList<String>();
                                 for(int i=0;i< s.getMediaEntities().length;i++)
@@ -125,13 +128,36 @@ public class HashtagSearchActivity extends AppCompatActivity {
                                     }
                                 }
                                 imageUrls.add(statusImageUrls);
+                                done = false;
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        replies = getDiscussion(s, twitter);
+                                        synchronized (repliesLock) {
+                                            done=true;
+                                            repliesLock.notify();
+                                        }
+                                    }
+                                }).start();
+
                             }
+
                             postSearchAdapter = new PostSearchAdapter(HashtagSearchActivity.this,recyclerPosts);
                             postSearchAdapter.passImages(imageUrls);
+                            synchronized (repliesLock){
+                                if(!done){
+                                    try{
+                                        repliesLock.wait();
+                                    }catch(InterruptedException e){
+                                        e.printStackTrace();
+                                    }
+                                    postSearchAdapter.passReplies(replies);
+                                }
+                            }
+
                             resultRecyclerView.setAdapter(postSearchAdapter);
                             resultRecyclerView.setLayoutManager(new LinearLayoutManager(HashtagSearchActivity.this));
-                        } catch (InterruptedException e) {
-                        }
+
 
                     }
                 }
@@ -155,6 +181,62 @@ public class HashtagSearchActivity extends AppCompatActivity {
         hashtagSearchText.setText(savedInstanceState.getString("selectedHashtag"));
         if(savedInstanceState.getBoolean("searchPerformed"))
             searchButton.performClick();
+    }
+
+    public ArrayList<Status> getDiscussion(Status status, Twitter twitter) {
+        ArrayList<Status> replies = new ArrayList<>();
+
+        ArrayList<Status> all = null;
+
+        try {
+            long id = status.getId();
+            String screenname = status.getUser().getScreenName();
+
+            Query query = new Query("@" + screenname + " since_id:" + id);
+
+            //System.out.println("query string: " + query.getQuery());
+
+            try {
+                query.setCount(100);
+            } catch (Throwable e) {
+                // enlarge buffer error?
+                query.setCount(30);
+            }
+
+            QueryResult result = twitter.search(query);
+            //System.out.println("result: " + result.getTweets().size());
+
+            all = new ArrayList<Status>();
+
+            do {
+                //System.out.println("do loop repetition");
+
+                List<Status> tweets = result.getTweets();
+
+                for (Status tweet : tweets)
+                    if (tweet.getInReplyToStatusId() == id)
+                        all.add(tweet);
+
+                if (all.size() > 0) {
+                    for (int i = all.size() - 1; i >= 0; i--)
+                        replies.add(all.get(i));
+                    all.clear();
+                }
+
+                query = result.nextQuery();
+
+                if (query != null)
+                    result = twitter.search(query);
+
+            } while (query != null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        }
+        done = true;
+        return replies;
     }
 }
 
